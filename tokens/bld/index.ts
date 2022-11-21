@@ -1,24 +1,24 @@
-import * as token from "@solana/spl-token"
-import * as web3 from "@solana/web3.js"
-import { initializeKeypair } from "./initializeKeypair"
-import * as fs from "fs"
+import * as token from "@solana/spl-token";
+import * as web3 from "@solana/web3.js";
+import { initializeKeypair } from "./initializeKeypair";
+import * as fs from "fs";
 import {
   bundlrStorage,
   findMetadataPda,
   keypairIdentity,
   Metaplex,
   toMetaplexFile,
-} from "@metaplex-foundation/js"
+} from "@metaplex-foundation/js";
 import {
   DataV2,
   createCreateMetadataAccountV2Instruction,
-} from "@metaplex-foundation/mpl-token-metadata"
+} from "@metaplex-foundation/mpl-token-metadata";
 
-const tokenName = "BUILD"
-const tokenSymbol = "BLD"
-const tokenDescription = "A token for buildoors"
-const tokenImagePath = "tokens/bld/assets/unicorn.png"
-const tokenImageFileName = "unicorn.png"
+const tokenName = "Leo Token";
+const tokenSymbol = "LEO";
+const tokenDescription = "A token for LEO buildoors";
+const tokenImagePath = "tokens/bld/assets/leo2.png";
+const tokenImageFileName = "leo2.png";
 
 async function createBldToken(
   connection: web3.Connection,
@@ -30,7 +30,7 @@ async function createBldToken(
     payer.publicKey,
     payer.publicKey,
     2
-  )
+  );
 
   const metaplex = Metaplex.make(connection)
     .use(keypairIdentity(payer))
@@ -40,11 +40,11 @@ async function createBldToken(
         providerUrl: "https://api.devnet.solana.com",
         timeout: 60000,
       })
-    )
+    );
 
-  const imageBuffer = fs.readFileSync(tokenImagePath)
-  const file = toMetaplexFile(imageBuffer, tokenImageFileName)
-  const imageUri = await metaplex.storage().upload(file)
+  const imageBuffer = fs.readFileSync(tokenImagePath);
+  const file = toMetaplexFile(imageBuffer, tokenImageFileName);
+  const imageUri = await metaplex.storage().upload(file);
   const { uri } = await metaplex
     .nfts()
     .uploadMetadata({
@@ -52,9 +52,9 @@ async function createBldToken(
       description: tokenDescription,
       image: imageUri,
     })
-    .run()
+    .run();
 
-  const metadataPda = await findMetadataPda(tokenMint)
+  const metadataPda = await findMetadataPda(tokenMint);
 
   const tokenMetadata = {
     name: tokenName,
@@ -64,7 +64,7 @@ async function createBldToken(
     creators: null,
     collection: null,
     uses: null,
-  } as DataV2
+  } as DataV2;
 
   const instruction = createCreateMetadataAccountV2Instruction(
     {
@@ -80,16 +80,16 @@ async function createBldToken(
         isMutable: true,
       },
     }
-  )
+  );
 
-  const transaction = new web3.Transaction()
-  transaction.add(instruction)
+  const transaction = new web3.Transaction();
+  transaction.add(instruction);
 
   const transactionSignature = await web3.sendAndConfirmTransaction(
     connection,
     transaction,
     [payer]
-  )
+  );
 
   fs.writeFileSync(
     "tokens/bld/cache.json",
@@ -100,22 +100,22 @@ async function createBldToken(
       tokenMetadata: metadataPda.toBase58(),
       metadataTransaction: transactionSignature,
     })
-  )
+  );
 }
 
 async function main() {
-  const connection = new web3.Connection(web3.clusterApiUrl("devnet"))
-  const payer = await initializeKeypair(connection)
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
+  const payer = await initializeKeypair(connection);
 
-  await createBldToken(connection, payer)
+  await createBldToken(connection, payer);
 }
 
 main()
   .then(() => {
-    console.log("Finished successfully")
-    process.exit(0)
+    console.log("Finished successfully");
+    process.exit(0);
   })
   .catch((error) => {
-    console.log(error)
-    process.exit(1)
-  })
+    console.log(error);
+    process.exit(1);
+  });
